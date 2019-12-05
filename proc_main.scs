@@ -1,0 +1,110 @@
+scp_program -> proc_main (*
+	
+	-> rrel_params: ... (*
+		-> rrel_1: rrel_in: _graph;;
+	*);;
+
+	-> rrel_operators: ... (*
+
+	//Вносим все вершины во множество непроверенных
+	-> rrel_init: ..proc_main_operator1 (*
+			<- searchSetStr5;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _graph;;
+			-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_assign: rrel_scp_var: _el3;;
+			-> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc4;;
+			-> rrel_5: rrel_fixed: rrel_scp_const: rrel_vertex;;
+
+			->rrel_set_3: rrel_assign: rrel_scp_var: _vertexes_set;;
+
+			=> nrel_then: ..proc_main_operator2;;
+			=> nrel_else: ..proc_main_operator_return;;
+		*);;
+	
+	//Находим элемент непроверенных вершин
+	-> ..proc_main_operator2 (*
+				<- searchElStr3;;
+				-> rrel_1: rrel_fixed: rrel_scp_var: _vertexes_set;;
+				-> rrel_2: rrel_assign: rrel_scp_var: rrel_pos_const_perm: _arc2;;
+				-> rrel_3: rrel_assign: rrel_scp_var: _cur_vertex;;
+
+				=> nrel_then: ..proc_main_operator3;;
+				=> nrel_else: ..proc_run_operator_erase_not_checked_vertexes;;
+		*);;
+	
+	//Удаляем дугу, для дальнейшего итерирования
+	-> ..proc_main_operator3 (*
+				<- eraseEl;;
+				-> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: rrel_pos_const_perm: _arc2;;
+				=>nrel_goto: ..proc_main_operator_print_4;;  // ВЫВОД ДЛЯ ДЕБАГА
+	*);;
+
+	//ВЫВОД ДЛЯ ДЕБАГА
+	-> ..proc_main_operator_print_4 (* 
+				<-printEl;;
+				-> rrel_1: rrel_fixed: rrel_scp_var: _cur_vertex;;
+				=> nrel_goto: ..proc_main_operator4;;
+	*);;
+
+	//Создаем новое множество для перебора путей
+	-> ..proc_main_operator4 (*
+			<- searchSetStr5;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _graph;;
+			-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_assign: rrel_scp_var: _el3;;
+			-> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc4;;
+			-> rrel_5: rrel_fixed: rrel_scp_const: rrel_vertex;;
+
+			->rrel_set_3: rrel_assign: rrel_scp_var: _iterate_vertexes_set;;
+
+			=> nrel_then: ..proc_main_operator5;;
+			=> nrel_else: ..proc_main_operator_return;;
+	*);;
+
+	//Берем элемент для итерации
+	-> ..proc_main_operator5 (*
+			<- searchElStr3;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _iterate_vertexes_set;;
+			-> rrel_2: rrel_assign: rrel_scp_var: rrel_pos_const_perm: _arc2;;
+			-> rrel_3: rrel_assign: rrel_scp_var: _cur_iterate_vertex;;
+
+			=> nrel_then: ..proc_main_operator6;;
+			=> nrel_else: ..proc_main_erase_iterate_vertexes;;
+	*);;
+
+	//Удаляем дугу, для дальнейшего итерирования
+	-> ..proc_main_operator6 (*
+			<- eraseEl;;
+			-> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: rrel_pos_const_perm: _arc2;;
+			=>nrel_goto: ..proc_main_operator_print_7;;  // ВЫВОД ДЛЯ ДЕБАГА
+	*);;
+
+	//ВЫВОД ДЛЯ ДЕБАГА
+	-> ..proc_main_operator_print_7 (* 
+			<-printEl;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _cur_iterate_vertex;;
+			=> nrel_goto: ..proc_main_operator5;;
+	*);;
+
+
+	//Если закончились элементы для поиска пути, берем следующий из непроверенных и опять перебираем
+	-> ..proc_main_erase_iterate_vertexes (*
+			<- eraseEl;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: rrel_erase: _iterate_vertexes_set;;
+
+			=> nrel_goto: ..proc_main_operator2;;
+		*);;
+
+	//Если закончились элементы непроверенных вершин, то на выход
+	-> ..proc_run_operator_erase_not_checked_vertexes (*
+			<- eraseEl;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: rrel_erase: _vertexes_set;;
+
+			=> nrel_goto: ..proc_main_operator_return;;
+		*);;
+
+		-> ..proc_main_operator_return (*
+			<- return;;
+		*);;
+	*);;
+*);;
