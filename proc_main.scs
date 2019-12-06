@@ -57,8 +57,27 @@ scp_program -> proc_main (*
 
 			->rrel_set_3: rrel_assign: rrel_scp_var: _iterate_vertexes_set;;
 
-			=> nrel_then: ..proc_main_operator5;;
+			=> nrel_then: ..proc_main_operator_delete_cur_vertex1;;
 			=> nrel_else: ..proc_main_operator_return;;
+	*);;
+
+	//Находим текущую вершину для удаления ее из итерируемых
+	-> ..proc_main_operator_delete_cur_vertex1 (*
+			<- searchElStr3;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _iterate_vertexes_set;;
+			-> rrel_2: rrel_assign: rrel_scp_var: rrel_pos_const_perm: _arc2;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _cur_vertex;;
+
+			=> nrel_then: ..proc_main_operator_delete_cur_vertex2;;
+			=> nrel_else: ..proc_main_operator5;;
+	*);;
+
+	//Удаляем текущую вершину из итерируемых
+	-> ..proc_main_operator_delete_cur_vertex2 (*
+			<- eraseEl;;
+			-> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: _arc2;;
+
+			=> nrel_goto: ..proc_main_operator5;;
 	*);;
 
 	//Берем элемент для итерации
@@ -76,16 +95,57 @@ scp_program -> proc_main (*
 	-> ..proc_main_operator6 (*
 			<- eraseEl;;
 			-> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: rrel_pos_const_perm: _arc2;;
-			=>nrel_goto: ..proc_main_operator_print_7;;  // ВЫВОД ДЛЯ ДЕБАГА
+			=>nrel_goto: ..proc_main_operator7;;  
 	*);;
 
 	//ВЫВОД ДЛЯ ДЕБАГА
-	-> ..proc_main_operator_print_7 (* 
+	/*-> ..proc_main_operator_print_7 (* 
 			<-printEl;;
 			-> rrel_1: rrel_fixed: rrel_scp_var: _cur_iterate_vertex;;
 			=> nrel_goto: ..proc_main_operator5;;
+	*);;*/
+
+
+	//Вызов поиска мин путей
+	-> ..proc_main_operator7 (*
+			<-call;;
+			-> rrel_1: rrel_fixed: rrel_scp_const: proc_find_min_path;;
+			-> rrel_2: rrel_fixed: rrel_scp_const: ... (*
+				-> rrel_1: rrel_fixed: rrel_scp_var: _graph;;
+				-> rrel_2: rrel_fixed: rrel_scp_var: _cur_vertex;;
+				-> rrel_3: rrel_fixed: rrel_scp_var: _cur_iterate_vertex;;
+				-> rrel_4: rrel_assign: rrel_scp_var: _route;;
+			*);;
+			-> rrel_3: rrel_assign: rrel_scp_var: _descr;;
+			
+			=> nrel_goto: ..proc_main_operator8;;
 	*);;
 
+	-> ..proc_main_operator8 (*
+		<- waitReturn;;
+		-> rrel_1: rrel_fixed: rrel_scp_var: _descr;;
+
+		=> nrel_goto: ..proc_main_print_route;;
+	*);;
+
+	//Вывод кратчайшего пути
+	-> ..proc_main_print_route (*
+			<- call;;
+			-> rrel_1: rrel_fixed: rrel_scp_const: proc_print_route;;
+			-> rrel_2: rrel_fixed: rrel_scp_const: ... (*
+				-> rrel_1: rrel_fixed: rrel_scp_var: _route;;
+			*);;
+			-> rrel_3: rrel_assign: rrel_scp_var: _descr;;
+
+			=> nrel_goto: ..proc_main_print_route2;;
+		*);;
+
+	-> ..proc_main_print_route2 (*
+			<- waitReturn;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _descr;;
+
+			=> nrel_goto: ..proc_main_operator5;;
+		*);;	
 
 	//Если закончились элементы для поиска пути, берем следующий из непроверенных и опять перебираем
 	-> ..proc_main_erase_iterate_vertexes (*

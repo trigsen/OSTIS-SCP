@@ -1,16 +1,12 @@
 undirected_graph->graph1(*
-	->rrel_vertex: A;;
-	->rrel_vertex: B;;
-	->rrel_vertex: C;;
-	->rrel_vertex: D;;
-	->rrel_vertex: E;;
-	->rrel_vertex: F;;
-	->rrel_edge: ( A <=> C );;
-	->rrel_edge: ( A <=> D );;
-	->rrel_edge: ( D <=> C );;
-	->rrel_edge: ( F <=> C );;
-	->rrel_edge: ( F <=> E );;
-	->rrel_edge: ( D <=> E );;
-	->rrel_edge: ( D <=> B );;
+	->rrel_vertex: V1_g1;;
+	->rrel_vertex: V2_g1;;
+	->rrel_vertex: V3_g1;;
+	->rrel_vertex: V4_g1;;
+	->rrel_vertex: V5_g1;;
+	->rrel_edge: ( V1_g1 <=> V2_g1 );;
+	->rrel_edge: ( V2_g1 <=> V3_g1 );;
+	->rrel_edge: ( V4_g1 <=> V2_g1 );;
+	->rrel_edge: ( V5_g1 <=> V2_g1 );;
 *);;
 
