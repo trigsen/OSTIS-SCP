@@ -8,29 +8,29 @@ scp_program -> proc_main (*
 
 	//Вносим все вершины во множество непроверенных
 	-> rrel_init: ..proc_main_operator1 (*
-			<- searchSetStr5;;
-			-> rrel_1: rrel_fixed: rrel_scp_var: _graph;;
-			-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
-			-> rrel_3: rrel_assign: rrel_scp_var: _el3;;
-			-> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc4;;
-			-> rrel_5: rrel_fixed: rrel_scp_const: rrel_vertex;;
+		<- searchSetStr5;;
+		-> rrel_1: rrel_fixed: rrel_scp_var: _graph;;
+		-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
+		-> rrel_3: rrel_assign: rrel_scp_var: _el3;;
+		-> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc4;;
+		-> rrel_5: rrel_fixed: rrel_scp_const: rrel_vertex;;
 
-			->rrel_set_3: rrel_assign: rrel_scp_var: _vertexes_set;;
+		->rrel_set_3: rrel_assign: rrel_scp_var: _vertexes_set;;
 
-			=> nrel_then: ..proc_main_operator2;;
-			=> nrel_else: ..proc_main_operator_return;;
-		*);;
+		=> nrel_then: ..proc_main_operator2;;
+		=> nrel_else: ..proc_main_operator_return;;
+	*);;
 	
 	//Находим элемент непроверенных вершин
 	-> ..proc_main_operator2 (*
-				<- searchElStr3;;
-				-> rrel_1: rrel_fixed: rrel_scp_var: _vertexes_set;;
-				-> rrel_2: rrel_assign: rrel_scp_var: rrel_pos_const_perm: _arc2;;
-				-> rrel_3: rrel_assign: rrel_scp_var: _cur_vertex;;
+			<- searchElStr3;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _vertexes_set;;
+			-> rrel_2: rrel_assign: rrel_scp_var: rrel_pos_const_perm: _arc2;;
+			-> rrel_3: rrel_assign: rrel_scp_var: _cur_vertex;;
 
-				=> nrel_then: ..proc_main_operator3;;
-				=> nrel_else: ..proc_run_operator_erase_not_checked_vertexes;;
-		*);;
+			=> nrel_then: ..proc_main_operator3;;
+			=> nrel_else: ..proc_run_operator_erase_not_checked_vertexes;;
+	*);;
 	
 	//Удаляем дугу, для дальнейшего итерирования
 	-> ..proc_main_operator3 (*
@@ -95,9 +95,26 @@ scp_program -> proc_main (*
 	-> ..proc_main_operator6 (*
 			<- eraseEl;;
 			-> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: rrel_pos_const_perm: _arc2;;
-			=>nrel_goto: ..proc_main_operator7;;  
+			=>nrel_goto: ..proc_main_operator_create_count_vertex_number1;;  
 	*);;
 
+	//Создаем ссылку, хранящую число точек в кратчайшем пути
+	-> ..proc_main_operator_create_count_vertex_number1 (*
+		 	<- genEl;;
+	   		-> rrel_1: rrel_assign: rrel_node: rrel_link: rrel_const: rrel_scp_var: _count_of_vertexes;;
+
+			=> nrel_goto: ..proc_main_operator_create_count_vertex_number2;; 	
+	*);;
+
+	//Вносим значение в _count_of_vertexes, хранящую число точек в кратчайшем пути
+	-> ..proc_main_operator_create_count_vertex_number2 (*
+        <- contAssign;;
+		-> rrel_1: rrel_fixed: rrel_scp_var: _count_of_vertexes;;
+	    -> rrel_2: rrel_fixed: rrel_scp_const: [0];;
+
+	    => nrel_goto: ..proc_main_operator7;;
+        *);;
+	
 	//ВЫВОД ДЛЯ ДЕБАГА
 	/*-> ..proc_main_operator_print_7 (* 
 			<-printEl;;
@@ -144,8 +161,50 @@ scp_program -> proc_main (*
 			<- waitReturn;;
 			-> rrel_1: rrel_fixed: rrel_scp_var: _descr;;
 
-			=> nrel_goto: ..proc_main_operator5;;
-		*);;	
+			=> nrel_goto: ..proc_main_operator_get_sum_count_vertex_number1;;
+		*);;
+
+	//Считаем точки в кратчайшем пути
+	-> ..proc_main_operator_get_sum_count_vertex_number1 (*
+			<- call;;
+			-> rrel_1: rrel_fixed: rrel_scp_const: proc_get_count_of_route_vertexes;;
+			-> rrel_2: rrel_fixed: rrel_scp_const: ... (*
+				-> rrel_1: rrel_fixed: rrel_scp_var: _route;;
+				-> rrel_2: rrel_fixed: rrel_scp_var: _count_of_vertexes;;
+			*);;
+			-> rrel_3: rrel_assign: rrel_scp_var: _descr;;
+
+			=> nrel_goto: ..proc_main_operator_get_sum_count_vertex_number2;;
+	*);;
+
+	-> ..proc_main_operator_get_sum_count_vertex_number2 (*
+			<- waitReturn;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _descr;;
+
+			=> nrel_goto: ..proc_main_operator_get_sum_count_vertex_number3;;
+		*);;
+
+	//Вывод количества точек в кратчайшем пути
+	->..proc_main_operator_get_sum_count_vertex_number3 (*
+			<-printNl;;
+			-> rrel_1: rrel_fixed: rrel_scp_const: [ Число точек в кратчайшем пути: ];;
+
+			=>nrel_goto: ..proc_main_operator_get_sum_count_vertex_number4;;
+		*);;
+
+	-> ..proc_main_operator_get_sum_count_vertex_number4 (*
+			<-printNl;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _count_of_vertexes;;
+			=> nrel_goto: ..proc_main_operator_erase_count_vertex_number;;
+	*);;
+
+	// Удаление count_of_vertex, хранящую число точек в кратчайшем пути
+	-> ..proc_main_operator_erase_count_vertex_number (*
+			<- eraseEl;;
+            -> rrel_1 : rrel_fixed : rrel_erase: rrel_scp_var : _count_of_vertexes;;
+
+            => nrel_goto : ..proc_main_operator5;;
+	*);;
 
 	//Если закончились элементы для поиска пути, берем следующий из непроверенных и опять перебираем
 	-> ..proc_main_erase_iterate_vertexes (*
