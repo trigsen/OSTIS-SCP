@@ -6,8 +6,25 @@ scp_program -> proc_main (*
 
 	-> rrel_operators: ... (*
 
+	//Создаем ссылку, хранящую максимальное число точек в кратчайшем пути, т.е. число точек в диаметре
+	-> rrel_init: ..proc_main_operator_create_count_diamter_vertex_number1 (*
+		 	<- genEl;;
+	   		-> rrel_1: rrel_assign: rrel_node: rrel_link: rrel_const: rrel_scp_var: _count_of_diametr_vertexes;;
+
+			=> nrel_goto: ..proc_main_operator_create_count_diamter_vertex_number2;; 	
+	*);;
+
+	//Вносим значение в _count_of_diametr_vertexes
+	-> ..proc_main_operator_create_count_diamter_vertex_number2 (*
+        <- contAssign;;
+		-> rrel_1: rrel_fixed: rrel_scp_var: _count_of_diametr_vertexes;;
+	    -> rrel_2: rrel_fixed: rrel_scp_const: [0];;
+
+	    => nrel_goto: ..proc_main_operator1;;
+        *);;
+
 	//Вносим все вершины во множество непроверенных
-	-> rrel_init: ..proc_main_operator1 (*
+	-> ..proc_main_operator1 (*
 		<- searchSetStr5;;
 		-> rrel_1: rrel_fixed: rrel_scp_var: _graph;;
 		-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
@@ -195,7 +212,25 @@ scp_program -> proc_main (*
 	-> ..proc_main_operator_get_sum_count_vertex_number4 (*
 			<-printNl;;
 			-> rrel_1: rrel_fixed: rrel_scp_var: _count_of_vertexes;;
-			=> nrel_goto: ..proc_main_operator_erase_count_vertex_number;;
+			=> nrel_goto: ..proc_main_operator_comparison;;
+	*);;
+	
+	//Сравниваем количество точек в крат маршруте и кол-во точек в потенциальном диаметре
+	-> ..proc_main_operator_comparison (*
+		<- ifGr;;
+		-> rrel_1: rrel_scp_var: _count_of_vertexes;;
+		-> rrel_2: rrel_scp_var:_count_of_diametr_vertexes;;
+		=> nrel_then: ..proc_main_operator_comparison_yes;;
+		=> nrel_else: ..proc_main_operator_erase_count_vertex_number;;
+	*);;
+
+	//Если в кратчайшем пути больше точек, чем в потенциальном диаметре, то копируем значение
+	-> ..proc_main_operator_comparison_yes (* 
+		<-contAssign;;
+		-> rrel_1: rrel_assign: rrel_scp_var: _count_of_diametr_vertexes;;
+		-> rrel_2: rrel_fixed: rrel_scp_var: _count_of_vertexes;;
+		
+		=> nrel_goto: ..proc_main_operator_erase_count_vertex_number;;
 	*);;
 
 	// Удаление count_of_vertex, хранящую число точек в кратчайшем пути
@@ -219,9 +254,30 @@ scp_program -> proc_main (*
 			<- eraseEl;;
 			-> rrel_1: rrel_fixed: rrel_scp_var: rrel_erase: _vertexes_set;;
 
-			=> nrel_goto: ..proc_main_operator_return;;
+			=> nrel_goto: ..proc_main_operator_get_diametr_count_vertex_number1;;
+		*);;
+	
+	//Вывод количества вершин в диаметре
+	->..proc_main_operator_get_diametr_count_vertex_number1 (*
+			<-printNl;;
+			-> rrel_1: rrel_fixed: rrel_scp_const: [ Число точек в диаметре: ];;
+
+			=>nrel_goto: ..proc_main_operator_get_diametr_count_vertex_number2;;
 		*);;
 
+	-> ..proc_main_operator_get_diametr_count_vertex_number2 (*
+			<-printNl;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _count_of_diametr_vertexes;;
+			=> nrel_goto: ..proc_main_operator_erase_diametr_count_vertex_number;;
+	*);;
+
+	//Удаление количества вершин в диаметре
+	-> ..proc_main_operator_erase_diametr_count_vertex_number (*
+			<- eraseEl;;
+            -> rrel_1 : rrel_fixed : rrel_erase: rrel_scp_var : _count_of_diametr_vertexes;;
+
+            => nrel_goto : ..proc_main_operator_return;;
+	*);;
 		-> ..proc_main_operator_return (*
 			<- return;;
 		*);;
