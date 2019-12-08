@@ -1,0 +1,68 @@
+scp_program -> proc_delete_route_struct (*	
+	-> rrel_params: ... (*
+		-> rrel_1: rrel_in: _route;;
+		-> rrel_2: rrel_in: _graph;;
+	*);;
+
+	-> rrel_operators: ... (*
+//	Находим ориентированный граф структуры маршрута.
+		-> rrel_init: ..proc_print_route_operator1 (*
+			<-call;;
+			-> rrel_1: rrel_fixed: rrel_scp_const: proc_get_route_struct;;
+			-> rrel_2: rrel_fixed: rrel_scp_const: ..proc_get_route_struct_params (*
+				-> rrel_1: rrel_fixed: rrel_scp_var: _route;;
+				-> rrel_2: rrel_assign: rrel_scp_var: _route_struct;;
+			*);;
+			-> rrel_3: rrel_assign: rrel_scp_var: _descr;;
+
+			=> nrel_goto: ..proc_print_route_operator_wait;;
+		*);;
+
+	-> ..proc_print_route_operator_wait (*
+			<- waitReturn;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _descr;;
+
+			=> nrel_goto: ..proc_print_route_operator2;;
+		*);;
+
+//вызываем удаление вершин структуры маршрута
+        -> ..proc_print_route_operator2 (*
+			<-call;;
+			-> rrel_1: rrel_fixed: rrel_scp_const: proc_delete_vertexes_route_struct;;
+			-> rrel_2: rrel_fixed: rrel_scp_const: ... (*
+				-> rrel_1: rrel_fixed: rrel_scp_var: _route_struct;;
+			*);;
+			-> rrel_3: rrel_assign: rrel_scp_var: _descr;;
+
+			=> nrel_goto: ..proc_print_route_operator3;;
+		*);;
+
+		-> ..proc_print_route_operator3 (*
+			<- waitReturn;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _descr;;
+
+			=> nrel_goto: ..proc_print_route_operator4;;
+		*);;
+
+		-> ..proc_print_route_operator4 (*
+			<-eraseElStr5;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _route;;
+			-> rrel_2: rrel_assign: rrel_scp_var: rrel_erase: _arc2;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _graph;;
+			-> rrel_4: rrel_assign: rrel_scp_var: rrel_pos_const_perm: _arc4;;
+			-> rrel_5: rrel_fixed: rrel_scp_const: rrel_2;;
+			
+			=> nrel_goto: ..proc_print_route_operator5;;
+		*);;
+
+        -> ..proc_print_route_operator5 (*
+			<- eraseEl;;
+            -> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: _route_struct;;
+            => nrel_goto: ..proc_print_route_operator_return;;
+		*);;
+
+        -> ..proc_print_route_operator_return (*
+			<- return;;
+		*);;
+	*);;
+*);;
