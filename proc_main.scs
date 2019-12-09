@@ -20,8 +20,15 @@ scp_program -> proc_main (*
 		-> rrel_1: rrel_fixed: rrel_scp_var: _count_of_diametr_vertexes;;
 	    -> rrel_2: rrel_fixed: rrel_scp_const: [0];;
 
-	    => nrel_goto: ..proc_main_operator1;;
+	    => nrel_goto: ..proc_main_operator_create_set_diam;;
         *);;
+
+	-> ..proc_main_operator_create_set_diam (*
+		<-genEl;;
+		-> rrel_1: rrel_assign: rrel_const: rrel_node: rrel_scp_var: _diam_vertex_set;;
+
+		=> nrel_goto: ..proc_main_operator1;;
+	*);;
 
 	//Вносим все вершины во множество непроверенных
 	-> ..proc_main_operator1 (*
@@ -221,7 +228,7 @@ scp_program -> proc_main (*
 		-> rrel_1: rrel_scp_var: _count_of_vertexes;;
 		-> rrel_2: rrel_scp_var:_count_of_diametr_vertexes;;
 		=> nrel_then: ..proc_main_operator_comparison_yes;;
-		=> nrel_else: ..proc_main_delete_route;;
+		=> nrel_else: ..proc_main_operator_comparison_no;; //Сделать переход если нет, то проверяем одинаковое ли количество точек
 	*);;
 	
 	//Для переделки: если больше, то удаляем множества, хранящие дуги и вершины диаметра, 
@@ -235,8 +242,74 @@ scp_program -> proc_main (*
 		-> rrel_1: rrel_assign: rrel_scp_var: _count_of_diametr_vertexes;;
 		-> rrel_2: rrel_fixed: rrel_scp_var: _count_of_vertexes;;
 		
-		=> nrel_goto: ..proc_main_delete_route;;
+		=> nrel_goto: ..proc_main_operator_diam_set1;; //proc_main_delete_route
 	*);;
+
+	//Удаляем старое множество вершин диаметров 
+	-> ..proc_main_operator_diam_set1 (*
+		<- eraseEl;;
+		-> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: _diam_vertex_set;;
+		
+		=>nrel_goto: ..proc_main_operator_diam_set2;;
+	*);;
+
+	//Создаем новое множество вершин диаметров
+	-> ..proc_main_operator_diam_set2 (*
+		<- genEl;;
+		-> rrel_1: rrel_assign: rrel_const: rrel_node: rrel_scp_var: _diam_vertex_set;;
+		
+		=>nrel_goto: ..proc_main_operator_diam_set3;;
+	*);;
+
+	//Вызываем функцию, которая добавляет вершины во множество вершин диаметров
+	-> ..proc_main_operator_diam_set3 (*
+			<-call;;
+			-> rrel_1: rrel_fixed: rrel_scp_const: proc_get_diam_vertexes;;
+			-> rrel_2: rrel_fixed: rrel_scp_const: ... (*
+				-> rrel_1: rrel_fixed: rrel_scp_var: _route;;
+				-> rrel_2: rrel_fixed: rrel_scp_var: _diam_vertex_set;;
+			*);;
+			-> rrel_3: rrel_assign: rrel_scp_var: _descr;;
+			
+			=>nrel_goto: ..proc_main_operator_diam_set4;;
+	*);;
+
+	-> ..proc_main_operator_diam_set4 (*
+			<- waitReturn;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _descr;;
+
+			=>nrel_goto: ..proc_main_delete_route;;
+	*);;
+
+	//Проверка если точек равное количество
+	-> ..proc_main_operator_comparison_no (* 
+			<-ifEq;;
+			-> rrel_1: rrel_scp_var: _count_of_vertexes;;
+			-> rrel_2: rrel_scp_var: _count_of_diametr_vertexes;;
+			
+			=> nrel_then: ..proc_main_operator_diam_set5;;
+			=> nrel_else: ..proc_main_delete_route;;
+	*);;
+
+	-> ..proc_main_operator_diam_set5 (*
+			<-call;;
+			-> rrel_1: rrel_fixed: rrel_scp_const: proc_get_diam_vertexes;;
+			-> rrel_2: rrel_fixed: rrel_scp_const: ... (*
+				-> rrel_1: rrel_fixed: rrel_scp_var: _route;;
+				-> rrel_2: rrel_fixed: rrel_scp_var: _diam_vertex_set;;
+			*);;
+			-> rrel_3: rrel_assign: rrel_scp_var: _descr;;
+			
+			=>nrel_goto: ..proc_main_operator_diam_set6;;
+	*);;
+
+	-> ..proc_main_operator_diam_set6 (*
+			<- waitReturn;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _descr;;
+
+			=>nrel_goto: ..proc_main_delete_route;;
+	*);;
+
 
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 	//Удаление структуры маршрута
@@ -303,8 +376,41 @@ scp_program -> proc_main (*
 			<- eraseEl;;
             -> rrel_1 : rrel_fixed : rrel_erase: rrel_scp_var : _count_of_diametr_vertexes;;
 
-            => nrel_goto : ..proc_main_operator_return;;
+            => nrel_goto : ..proc_main_operator_print_diam_vert1;; //return
 	*);;
+
+	//Чтобы получить ребра надо переделать функцию proc_get_other_vertex_incidence_edge
+	//А именно: Надо идти по ребрам графа, закидывать ребро в функцию,
+	//Там изменить на проверку совпадений вершин, на проверку содержатся ли они во множестве вершин графа
+	//Если да, то закидываем это ребро во множество ребер графа
+	//После этого строить структуру 
+
+
+	//Вывод точек, содержащихся в диаметре
+	-> ..proc_main_operator_print_diam_vert1 (*
+			<- searchElStr3;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _diam_vertex_set;;
+			-> rrel_2: rrel_assign: rrel_scp_var: rrel_pos_const_perm: _arc2;;
+			-> rrel_3: rrel_assign: rrel_scp_var: _vert;;
+
+			=> nrel_then: ..proc_main_operator_print_diam_vert2;;
+			=> nrel_else: ..proc_main_operator_return;;
+	*);;
+
+	-> ..proc_main_operator_print_diam_vert2 (*
+				<- eraseEl;;
+				-> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: rrel_pos_const_perm: _arc2;;
+				
+				=>nrel_goto: ..proc_main_operator_print_diam_vert3;;  
+	*);;
+
+	-> ..proc_main_operator_print_diam_vert3 (* 
+				<-printEl;;
+				-> rrel_1: rrel_fixed: rrel_scp_var: _vert;;
+				
+				=> nrel_goto: ..proc_main_operator_print_diam_vert1;;
+	*);;
+
 		-> ..proc_main_operator_return (*
 			<- return;;
 		*);;
