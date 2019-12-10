@@ -23,9 +23,26 @@ scp_program -> proc_main (*
 	    => nrel_goto: ..proc_main_operator_create_set_diam;;
         *);;
 
+	//Создаем множество, хранящее вершины диаметров
 	-> ..proc_main_operator_create_set_diam (*
 		<-genEl;;
 		-> rrel_1: rrel_assign: rrel_const: rrel_node: rrel_scp_var: _diam_vertex_set;;
+
+		=> nrel_goto: ..proc_main_operator_create_set_diam2;;
+	*);;
+
+	//Создаем мно-во хранящее ребра диаметров
+	-> ..proc_main_operator_create_set_diam2 (*
+		<-genEl;;
+		-> rrel_1: rrel_assign: rrel_const: rrel_node: rrel_scp_var: _diam_edges_set;;
+
+		=> nrel_goto: ..proc_main_operator_create_set_diam3;;
+	*);;
+	
+	//Создаем мн-во хранящее уже посещенные вершины при построении графа
+	-> ..proc_main_operator_create_set_diam3 (*
+		<-genEl;;
+		-> rrel_1: rrel_assign: rrel_const: rrel_node: rrel_scp_var: _visited_graph_create_vertex;;
 
 		=> nrel_goto: ..proc_main_operator1;;
 	*);;
@@ -376,40 +393,121 @@ scp_program -> proc_main (*
 			<- eraseEl;;
             -> rrel_1 : rrel_fixed : rrel_erase: rrel_scp_var : _count_of_diametr_vertexes;;
 
-            => nrel_goto : ..proc_main_operator_print_diam_vert1;; //return
+            => nrel_goto : ..proc_main_operator_get_diametr_edges1;; //return
 	*);;
 
 	//Чтобы получить ребра надо переделать функцию proc_get_other_vertex_incidence_edge
 	//А именно: Надо идти по ребрам графа, закидывать ребро в функцию,
 	//Там изменить на проверку совпадений вершин, на проверку содержатся ли они во множестве вершин графа
 	//Если да, то закидываем это ребро во множество ребер графа
-	//После этого строить структуру 
+	//После этого строить структуру	 
 
+	//Получаем множество ребер графа
+	-> ..proc_main_operator_get_diametr_edges1 (*
+		 	<- searchSetStr5;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _graph;;
+			-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_assign: rrel_scp_var: _el3;;
+			-> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc4;;
+			-> rrel_5: rrel_fixed: rrel_scp_const: rrel_edge;;
+		
+			->rrel_set_3: rrel_assign: rrel_scp_var: _set_edges;;
 
-	//Вывод точек, содержащихся в диаметре
-	-> ..proc_main_operator_print_diam_vert1 (*
+			=> nrel_then: ..proc_main_operator_get_diametr_edges2;;		
+		 	=> nrel_else: ..proc_main_operator_return;;	//create graph
+	*);;
+
+	//Запускаем поиск ребер 
+	-> ..proc_main_operator_get_diametr_edges2 (*
+			<- searchElStr3;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _set_edges;;
+			-> rrel_2: rrel_assign: rrel_scp_var: rrel_pos_const_perm: _arc2;;
+			-> rrel_3: rrel_assign: rrel_scp_var: _cur_edge;;
+
+			=> nrel_then: ..proc_main_operator_get_diametr_edges3;;
+			=> nrel_else: ..proc_main_operator_return;; //create graph
+	*);;
+
+	//Удаляем связь, для дальнейшего итерирования
+
+	-> ..proc_main_operator_get_diametr_edges3 (* 
+			<- eraseEl;;
+			-> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: rrel_pos_const_perm: _arc2;;
+			
+			=>nrel_goto: ..proc_main_operator_get_diametr_edges4;; 
+	*);;
+
+	-> ..proc_main_operator_get_diametr_edges4 (* 
+			<- searchElStr3;;
+			-> rrel_1: rrel_assign: rrel_scp_var: _temp_vertex1;;
+			-> rrel_2: rrel_fixed: rrel_scp_var: _cur_edge;;
+			-> rrel_3: rrel_assign: rrel_scp_var: _temp_vertex2;;	
+
+			=> nrel_then: ..proc_main_operator_get_diametr_edges5;;
+			=> nrel_else: ..proc_main_operator_get_diametr_edges2;;
+	*);;
+
+	
+
+	-> ..proc_main_operator_get_diametr_edges5 (* 
 			<- searchElStr3;;
 			-> rrel_1: rrel_fixed: rrel_scp_var: _diam_vertex_set;;
 			-> rrel_2: rrel_assign: rrel_scp_var: rrel_pos_const_perm: _arc2;;
-			-> rrel_3: rrel_assign: rrel_scp_var: _vert;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _temp_vertex1;;
 
-			=> nrel_then: ..proc_main_operator_print_diam_vert2;;
-			=> nrel_else: ..proc_main_operator_return;;
+			=> nrel_then: ..proc_main_operator_get_diametr_edges6;;
+			=> nrel_else: ..proc_main_operator_get_diametr_edges2;;
 	*);;
 
-	-> ..proc_main_operator_print_diam_vert2 (*
-				<- eraseEl;;
-				-> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: rrel_pos_const_perm: _arc2;;
-				
-				=>nrel_goto: ..proc_main_operator_print_diam_vert3;;  
+	-> ..proc_main_operator_get_diametr_edges6 (* 
+			<- searchElStr3;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _diam_vertex_set;;
+			-> rrel_2: rrel_assign: rrel_scp_var: rrel_pos_const_perm: _arc2;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _temp_vertex2;;
+
+			=> nrel_then: ..proc_main_operator_get_diametr_edges7;;
+			=> nrel_else: ..proc_main_operator_get_diametr_edges2;;
 	*);;
 
-	-> ..proc_main_operator_print_diam_vert3 (* 
-				<-printEl;;
-				-> rrel_1: rrel_fixed: rrel_scp_var: _vert;;
-				
-				=> nrel_goto: ..proc_main_operator_print_diam_vert1;;
+	-> ..proc_main_operator_get_diametr_edges7 (* 
+			<- genElStr3;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _diam_edges_set;;
+			-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _cur_edge;;
+			
+			=> nrel_goto: ..proc_main_operator_get_diametr_edges2;;
 	*);;
+
+	//Формируем структуру
+	//Делаем связку отношений
+	
+
+
+
+	//Вывод точек, содержащихся в диаметре
+//	-> ..proc_main_operator_print_diam_vert1 (*
+//			<- searchElStr3;;
+//			-> rrel_1: rrel_fixed: rrel_scp_var: _diam_vertex_set;;
+//			-> rrel_2: rrel_assign: rrel_scp_var: rrel_pos_const_perm: _arc2;;
+//			-> rrel_3: rrel_assign: rrel_scp_var: _vert;;
+//
+//			=> nrel_then: ..proc_main_operator_print_diam_vert2;;
+//			=> nrel_else: ..proc_main_operator_return;;
+//	*);;
+//
+//	-> ..proc_main_operator_print_diam_vert2 (*
+//				<- eraseEl;;
+//				-> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: rrel_pos_const_perm: _arc2;;
+//				
+//				=>nrel_goto: ..proc_main_operator_print_diam_vert3;;  
+//	*);;
+//
+//	-> ..proc_main_operator_print_diam_vert3 (* 
+//				<-printEl;;
+//				-> rrel_1: rrel_fixed: rrel_scp_var: _vert;;
+//				
+//				=> nrel_goto: ..proc_main_operator_print_diam_vert1;;
+//	*);;
 
 		-> ..proc_main_operator_return (*
 			<- return;;
