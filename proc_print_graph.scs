@@ -7,7 +7,7 @@ scp_program -> proc_print_graph (*
 //	Формируем множество связок графа для итерации.
 		-> rrel_init: ..proc_print_graph_operator1 (*
 			 <- searchSetStr5;;
-			-> rrel_1: rrel_fixed: rrel_scp_var: graph;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _graph;;
 			-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
 			-> rrel_3: rrel_assign: rrel_scp_var: _el3;;
 			-> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc4;;

@@ -83,7 +83,7 @@ scp_program -> proc_find_min_path (*
 			-> rrel_1: rrel_assign: rrel_scp_var: _waves_list_tail;;
 			-> rrel_2: rrel_fixed: rrel_scp_var: _waves_list_head;;
 
-			=>nrel_goto: ..proc_find_min_path_operator8;;
+			=>nrel_goto: ..proc_find_min_path_operator12;;
 		*);;
 
 		->..proc_find_min_path_operator8 (*
@@ -154,7 +154,7 @@ scp_program -> proc_find_min_path (*
 			-> rrel_1: rrel_assign: rrel_scp_var: _new_wave;;
 			-> rrel_2: rrel_fixed: rrel_scp_var: _created_wave;;
 
-			=>nrel_goto: ..proc_find_min_path_operator14;;
+			=>nrel_goto: ..proc_find_min_path_operator18;;
 		*);;
 	
 		

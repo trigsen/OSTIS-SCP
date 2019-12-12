@@ -77,7 +77,7 @@ scp_program -> proc_main (*
 	-> ..proc_main_operator3 (*
 				<- eraseEl;;
 				-> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: rrel_pos_const_perm: _arc2;;
-				=>nrel_goto: ..proc_main_operator_print_4;;  // ВЫВОД ДЛЯ ДЕБАГА
+				=>nrel_goto: ..proc_main_operator4;;  // ВЫВОД ДЛЯ ДЕБАГА
 	*);;
 
 	//ВЫВОД ДЛЯ ДЕБАГА
@@ -183,7 +183,7 @@ scp_program -> proc_main (*
 		<- waitReturn;;
 		-> rrel_1: rrel_fixed: rrel_scp_var: _descr;;
 
-		=> nrel_goto: ..proc_main_print_route;;
+		=> nrel_goto: ..proc_main_operator_get_sum_count_vertex_number1;;
 	*);;
 
 	//Вывод кратчайшего пути
@@ -222,7 +222,7 @@ scp_program -> proc_main (*
 			<- waitReturn;;
 			-> rrel_1: rrel_fixed: rrel_scp_var: _descr;;
 
-			=> nrel_goto: ..proc_main_operator_get_sum_count_vertex_number3;;
+			=> nrel_goto: ..proc_main_operator_comparison;;
 		*);;
 
 	//Вывод количества точек в кратчайшем пути
@@ -371,7 +371,7 @@ scp_program -> proc_main (*
 			<- eraseEl;;
 			-> rrel_1: rrel_fixed: rrel_scp_var: rrel_erase: _vertexes_set;;
 
-			=> nrel_goto: ..proc_main_operator_get_diametr_count_vertex_number1;;
+			=> nrel_goto: ..proc_main_operator_erase_diametr_count_vertex_number;;
 		*);;
 	
 	//Вывод количества вершин в диаметре
@@ -610,7 +610,7 @@ scp_program -> proc_main (*
 			-> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc4;;
 			-> rrel_5: rrel_fixed: rrel_scp_var: _diams_visit;;
 		
-			=> nrel_goto: ..proc_main_operator_create_graph15;;
+			=> nrel_goto: ..proc_main_operator_create_graph10;;
 		*);;
 		
 		-> ..proc_main_operator_create_graph15 (*
@@ -704,8 +704,15 @@ scp_program -> proc_main (*
 			-> rrel_4: rrel_assign: rrel_pos: rrel_scp_var: _arc4;;
 			-> rrel_5: rrel_fixed: rrel_scp_const: nrel_system_identifier;;
 		
-			=> nrel_then: ..proc_main_operator_create_graph24;;		
+			=> nrel_then: ..proc_main_operator_print_new;;		
 		 	=> nrel_else: ..proc_main_operator_create_graph16;;
+		*);;
+
+		-> ..proc_main_operator_print_new (*
+			<-printNl;;
+			-> rrel_1: rrel_fixed: rrel_scp_const: [ ];;
+
+			=>nrel_goto: ..proc_main_operator_create_graph24;;
 		*);;
 
 		-> ..proc_main_operator_create_graph24 (*
