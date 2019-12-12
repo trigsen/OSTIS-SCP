@@ -1,0 +1,7 @@
+nrel_graph_consist_of_diameters
+  <- sc_node_norole_relation;
+
+  => nrel_main_idtf:
+    [Граф, являющийся объединением множества диаметров графа* ] (* <- lang_ru;; *);
+    [Graph, consisting of all diameters* ] (* <- lang_en;; *);;
+

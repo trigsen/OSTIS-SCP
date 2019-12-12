@@ -414,7 +414,7 @@ scp_program -> proc_main (*
 			->rrel_set_3: rrel_assign: rrel_scp_var: _set_edges;;
 
 			=> nrel_then: ..proc_main_operator_get_diametr_edges2;;		
-		 	=> nrel_else: ..proc_main_operator_return;;	//create graph
+		 	=> nrel_else: ..proc_main_operator_create_graph1;;	//create graph
 	*);;
 
 	//Запускаем поиск ребер 
@@ -425,7 +425,7 @@ scp_program -> proc_main (*
 			-> rrel_3: rrel_assign: rrel_scp_var: _cur_edge;;
 
 			=> nrel_then: ..proc_main_operator_get_diametr_edges3;;
-			=> nrel_else: ..proc_main_operator_return;; //create graph
+			=> nrel_else: ..proc_main_operator_create_graph1;; //create graph
 	*);;
 
 	//Удаляем связь, для дальнейшего итерирования
@@ -479,9 +479,271 @@ scp_program -> proc_main (*
 	*);;
 
 	//Формируем структуру
-	//Делаем связку отношений
-	
+	//Делаем связку отношений. ВЫБИВАЕТ ОШИБКИ
+		-> ..proc_main_operator_create_graph1 (*
+			<- genEl;;
+			-> rrel_1: rrel_assign: rrel_node: rrel_scp_var: _diams;;
 
+			=> nrel_goto: ..proc_main_operator_create_graph2;;
+		*);;
+		//Делаем структуру диаметров
+		-> ..proc_main_operator_create_graph2 (*
+			<- genEl;;
+			-> rrel_1: rrel_assign: rrel_node: rrel_scp_var: _diams_struct;;
+
+			=> nrel_goto: ..proc_main_operator_create_graph3;;
+		*);;
+		//Делаем отношение посещенных вершин диаметров
+		-> ..proc_main_operator_create_graph3 (*
+			<- genEl;;
+			-> rrel_1: rrel_assign: rrel_node: rrel_scp_var: _diams_visit;;
+
+			=> nrel_goto: ..proc_main_operator_create_graph4;;
+		*);;
+		//Связываем понятие графа и структуру
+		-> ..proc_main_operator_create_graph4 (*
+			<- genElStr3;;
+			-> rrel_1: rrel_fixed: rrel_scp_const: directed_graph;;
+			-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _diams_struct;;
+
+			=> nrel_goto: ..proc_main_operator_create_graph5;;
+		*);;
+
+		//	Добавим все компоненты в связку отношений диаметров.
+		-> ..proc_main_operator_create_graph5 (*
+			<- genElStr5;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _diams;;
+			-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _diams_struct;;
+			-> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc4;;
+			-> rrel_5: rrel_fixed: rrel_scp_const: rrel_1;;
+
+			=> nrel_goto: ..proc_main_operator_create_graph6;;
+		*);;
+		
+		-> ..proc_main_operator_create_graph6 (*
+			<- genElStr5;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _diams;;
+			-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _graph;;
+			-> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc4;;
+			-> rrel_5: rrel_fixed: rrel_scp_const: rrel_2;;
+
+			=> nrel_goto: ..proc_main_operator_create_graph7;;
+		*);;
+
+		-> ..proc_main_operator_create_graph7 (*
+			<- genElStr5;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _diams;;
+			-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _diams_visit;;
+			-> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc4;;
+			-> rrel_5: rrel_fixed: rrel_scp_const: rrel_3;;
+
+			=> nrel_goto: ..proc_main_operator_create_graph8;;
+		*);;
+		
+		-> ..proc_main_operator_create_graph8 (*
+			<- genElStr3;;
+			-> rrel_1: rrel_fixed: rrel_scp_const: nrel_graph_consist_of_diameters;;
+			-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _diams;;
+
+			=> nrel_goto: ..proc_main_operator_create_graph10;;
+		*);;
+		
+		//Копируем вершины диаметров в другое множество
+		-> ..proc_main_operator_create_graph9 (*
+			<- searchSetStr3;;
+			-> rrel_1: rrel_fixed: rrel_scp_const: _diam_vertex_set;;
+			-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc;;
+			-> rrel_3: rrel_assign: rrel_node: rrel_scp_var: _el3;;
+
+			-> rrel_set_3: rrel_assign: rrel_scp_var: _copy_diam_vertex_set;;
+			
+			=> nrel_then: ..proc_main_operator_create_graph10;;	
+			=> nrel_else: ..proc_main_operator_create_graph16;;
+		*);;
+		
+		//Итерируемся по вершинам диаметров
+		-> ..proc_main_operator_create_graph10 (*
+			<- searchElStr3;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _diam_vertex_set;;
+			-> rrel_2: rrel_assign: rrel_scp_var: rrel_pos_const_perm: _arc2;;
+			-> rrel_3: rrel_assign: rrel_scp_var: _d_vert;;
+
+			=> nrel_then: ..proc_main_operator_create_graph11;;
+			=> nrel_else: ..proc_main_operator_create_graph16;;
+		*);;
+
+		-> ..proc_main_operator_create_graph11 (*
+			<- eraseEl;;
+			-> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: rrel_pos_const_perm: _arc2;;				
+			
+			=>nrel_goto: ..proc_main_operator_create_graph12;;  
+		*);;
+
+		-> ..proc_main_operator_create_graph12 (*
+			<- genEl;;
+			-> rrel_1: rrel_assign: rrel_node: rrel_const: rrel_scp_var: _vertex_visit;;
+			
+			=> nrel_goto: ..proc_main_operator_create_graph13;;
+		*);;
+
+		-> ..proc_main_operator_create_graph13 (*
+			<- genElStr5;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _diams_struct;;
+			-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _vertex_visit;;
+			-> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc4;;
+			-> rrel_5: rrel_fixed: rrel_scp_const: rrel_vertex;;
+
+			=> nrel_goto: ..proc_main_operator_create_graph14;;
+		*);;
+
+		-> ..proc_main_operator_create_graph14 (*
+			<- genElStr5;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _vertex_visit;;
+			-> rrel_2: rrel_assign: rrel_common: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _d_vert;;
+			-> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc4;;
+			-> rrel_5: rrel_fixed: rrel_scp_var: _diams_visit;;
+		
+			=> nrel_goto: ..proc_main_operator_create_graph15;;
+		*);;
+		
+		-> ..proc_main_operator_create_graph15 (*
+			<-printEl;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _d_vert;;
+
+			=> nrel_goto: ..proc_main_operator_create_graph10;;
+		*);;
+
+		//Добавляем ребра 
+		-> ..proc_main_operator_create_graph16 (*
+			<-searchElStr3;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _diam_edges_set;;
+			-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_assign: rrel_scp_var: _cur_edge;;
+
+			=> nrel_then: ..proc_main_operator_create_graph17;;
+			=> nrel_else: ..proc_main_operator_return;;
+			*);;
+
+
+
+		-> ..proc_main_operator_create_graph17 (*
+				<- eraseEl;;
+				-> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: rrel_pos_const_perm: _arc2;;
+						
+				=>nrel_goto: ..proc_main_operator_create_graph18;;  
+			*);;
+
+		-> ..proc_main_operator_create_graph18 (*
+			<-searchElStr3;;
+			-> rrel_1: rrel_assign: rrel_scp_var: _temp_vertex1;;
+			-> rrel_2: rrel_fixed: rrel_scp_var: _cur_edge;;
+			-> rrel_3: rrel_assign: rrel_scp_var: _temp_vertex2;;	
+			
+			=> nrel_then: ..proc_main_operator_create_graph19;;
+			=> nrel_else: ..proc_main_operator_create_graph16;;
+		*);;
+
+
+		-> ..proc_main_operator_create_graph19 (*
+			<-searchElStr5;;
+			-> rrel_1: rrel_assign: rrel_scp_var: _st_vert1;;
+			-> rrel_2: rrel_assign: rrel_common: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _temp_vertex1;;
+			-> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc4;;
+			-> rrel_5: rrel_fixed: rrel_scp_var: _diams_visit;;
+			
+			=> nrel_then: ..proc_main_operator_create_graph20;;
+			=> nrel_else: ..proc_main_operator_create_graph16;;
+		*);;
+
+		-> ..proc_main_operator_create_graph20 (*
+			<-searchElStr5;;
+			-> rrel_1: rrel_assign: rrel_scp_var: _st_vert2;;
+			-> rrel_2: rrel_assign: rrel_common: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _temp_vertex2;;
+			-> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc4;;
+			-> rrel_5: rrel_fixed: rrel_scp_var: _diams_visit;;
+			
+			=> nrel_then: ..proc_main_operator_create_graph21;;
+			=> nrel_else: ..proc_main_operator_create_graph16;;
+		*);;
+		//Cоздаем дугу между вершинами
+		-> ..proc_main_operator_create_graph21 (*
+			<- genElStr3;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _temp_vertex1;;
+			-> rrel_2: rrel_assign: rrel_common: rrel_scp_var: _edge_visit;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _temp_vertex2;;
+			
+			=> nrel_goto: ..proc_main_operator_create_graph22;;
+		*);;
+
+		//Добавляем в rrel_edge
+		-> ..proc_main_operator_create_graph22 (*
+			<- genElStr5;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _diams_struct;;
+			-> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_fixed: rrel_scp_var: _edge_visit;;
+			-> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc4;;
+			-> rrel_5: rrel_fixed: rrel_scp_const: rrel_edge;;
+
+			=> nrel_goto: ..proc_main_operator_create_graph23;;
+		*);;
+		//Вывод вершин
+		-> ..proc_main_operator_create_graph23 (*
+			<- searchElStr5;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _temp_vertex1;;
+			-> rrel_2: rrel_assign: rrel_const: rrel_common: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_assign: rrel_scp_var: _print_value;;
+			-> rrel_4: rrel_assign: rrel_pos: rrel_scp_var: _arc4;;
+			-> rrel_5: rrel_fixed: rrel_scp_const: nrel_system_identifier;;
+		
+			=> nrel_then: ..proc_main_operator_create_graph24;;		
+		 	=> nrel_else: ..proc_main_operator_create_graph16;;
+		*);;
+
+		-> ..proc_main_operator_create_graph24 (*
+			<-print;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _print_value;;
+
+			=>nrel_goto: ..proc_main_operator_create_graph25;;
+		*);;
+
+		-> ..proc_main_operator_create_graph25 (*
+			<-print;;
+			-> rrel_1: rrel_fixed: rrel_scp_const: [<==>];;
+
+			=>nrel_goto: ..proc_main_operator_create_graph26;;
+		*);;
+
+		-> ..proc_main_operator_create_graph26 (*
+			<- searchElStr5;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _temp_vertex2;;
+			-> rrel_2: rrel_assign: rrel_const: rrel_common: rrel_scp_var: _arc2;;
+			-> rrel_3: rrel_assign: rrel_scp_var: _print_value;;
+			-> rrel_4: rrel_assign: rrel_pos: rrel_scp_var: _arc4;;
+			-> rrel_5: rrel_fixed: rrel_scp_const: nrel_system_identifier;;
+		
+			=> nrel_then: ..proc_main_operator_create_graph27;;		
+		 	=> nrel_else: ..proc_main_operator_create_graph16;;
+		*);;
+
+		-> ..proc_main_operator_create_graph27 (*
+			<-print;;
+			-> rrel_1: rrel_fixed: rrel_scp_var: _print_value;;
+
+			=>nrel_goto: ..proc_main_operator_create_graph16;;
+		*);;
+
+		
+
+		//Соединяем диаметров вершины между собой
 
 
 	//Вывод точек, содержащихся в диаметре
